@@ -1,43 +1,47 @@
 import React, { Component } from 'react';
 import Books from './Books';
 import * as BooksAPI from './BooksAPI';
-import escapeRegExp from 'escape-string-regexp';
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import PropTypes from 'prop-types';
+
  
 
 class SearchPage extends Component {
+    static propTypes = {
+        updateShelf: PropTypes.func.isRequired,
+        books: PropTypes.array.isRequired
+       }
+
     state = {
         query: '',
         searchedBooks: [],
     }
     updateQuery = (query) => {
         this.setState({
-            query: query
+            query: query.trim()
         })
-        this.updateSearchedBooks(query);
+        this.updateSearchedBooks();
     }
 
-    updateSearchedBooks = (query) => {
-        if (query) {
-            BooksAPI.search(query).then((searchedBooks) => {
-                if (searchedBooks.error) {
-                    this.setState({ searchedBooks: [] })
-                } else {
-                    this.setState({ searchedBooks: searchedBooks })
-                }
-
-            })
+    updateSearchedBooks = () => {
+        BooksAPI.search(this.state.query, 20).then((SearchedBooks) => {
+            this.setState({ SearchedBooks });
+        });
+    }
+ 
+      checkForShelf = (book) => {
+        const matchingBook = this.props.books.filter(b => b.id === book.id)
+        if (matchingBook[0]) {
+          book.shelf = matchingBook[0].shelf;
         } else {
-
+          book.shelf = 'none';
         }
-    }
+      }
 
     render() {
-        if (this.state.query) {
-            const match = new RegExp(escapeRegExp(this.state.query), 'i')
-        } else{
-            this.setState({ searchedBooks: this.searchedBooks})
-        }
+
+        const { searchedBooks, query } = this.state;
+        
         return(
             <div className="search-books">
             <div className="search-books-bar">
@@ -46,18 +50,10 @@ class SearchPage extends Component {
                 to='/'
                 > </Link>
               <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
                 <input 
                     type="text" 
                     placeholder="Search by title or author"
-                    value={this.state.query}
+                    value={query}
                     onChange={(event) => this.updateQuery(event.target.value)}
                     />
 
@@ -65,29 +61,18 @@ class SearchPage extends Component {
             </div>
             <div className="search-books-results">
               <ol className="books-grid">
-                {this.state.searchedBooks.map(searchedBooks => {
-                    let shelf = "none";
+                 { searchedBooks && 
+                    searchedBooks.map((book) => (
+                        <li key={book.id}>
+                        { this.checkForShelf(book) }
 
-                    this.props.books.map(book => (
-                        book.id === searchedBooks.id ?
-                            shelf = book.shelf : 
-                            ''
-                    ));
-
-
-                    return (
-                        <li key={searchedBooks.id}>
+                    ) }
                         <Books
-                            books={searchedBooks}
-                            moveShelf={this.props.moveShelf}
-                            currentShelf={shelf}
+                            books={book}
+                            moveShelf={this.props.updateShelf}
                         />
-    
-                        </li>
-                    )
-
-                }
-                )}
+                    </li>
+                    ))}
               </ol>
             </div>
           </div>
