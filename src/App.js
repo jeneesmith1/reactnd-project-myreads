@@ -59,7 +59,7 @@ class App extends React.Component {
         BooksAPI.update(book, shelf).then((books) => {
             if (books) {
                 this.displayAllBooks();
-                this.updateQuery(this.state.query);
+                //this.updateQuery(this.state.query);
             }
         })
     };
@@ -77,7 +77,7 @@ class App extends React.Component {
                                <div className="search-books-bar">
                                    <Link to="/" className="close-search"
                                          onClick={() => (
-                                             this.setState({query: ""}, {results: ""})
+                                             this.setState({query: "", results: ""})
                                          )}>Close</Link>
 
                                    <div className="search-books-input-wrapper">
