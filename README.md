@@ -7,3 +7,9 @@ This file lets you search for books that you have read, want to read, or are cur
 To get started, identify some books that you have read, are reading, or want to add to your list! 
 
 Search for new books on the search page.
+
+To check this out for yourself: 
+
+1. Clone this repository
+2. Install the project dependencies by running `npm install`
+3. Run it locally with `npm start`
